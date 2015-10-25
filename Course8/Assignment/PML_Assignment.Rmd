@@ -1,0 +1,94 @@
+---
+title: "Practical Machine Learning Assignment"
+author: "Russ Macbeth"
+date: "October 24, 2015"
+output: html_document
+---
+
+## Summary
+
+The goal is to predict if an individual is correctly preforming a barbell lift exercise or is preforming one of four incorrect methods, based on accelerometer reading from fitness trackers. To create the predictions we'll download the data, familiarize ourselves with the training data through data exploration, and create a model to predict the results of the 20 test cases. Included in the modeling we will apply cross validation and estimate the expected out of sample error.
+
+## Getting the data
+
+First we need to download and read in the data, which comes from http://groupware.les.inf.puc-rio.br/har 
+```{r}
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", "training.csv", method = "curl")
+download.file("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", "testing.csv", method = "curl")
+training <- read.csv("training.csv")
+testing <- read.csv("testing.csv")
+```
+
+```{r}
+require(caret)
+```
+## Data Exploration
+
+For reproducible results, we'll set the seed:
+```{r}
+set.seed(44321)
+```
+
+We are trying to predict which category of variable "classe" based on accelerometer data. Within the "classe" variable there are five options. The first, indicated as status "A", indicates the exercise was preformed correctly. Conversely, if the excercise was being preformed in one of four incorrect ways, the result is labeled "B" through "E".
+
+Because we are trying to classify the result into one of the five classe options, we will utilize the random forest method of machine learning. 
+
+The data has `r length(testing)` variables. For this large amount of columns we cannot reasonabily expect to fully understand and analyze each column individually, particularly with such domain specific knowledge requires as gyrospcope coordinates. Accordingly, we will utilize PCA to decrease the number of variables and try to limit to those that are relevant to predicting.
+
+From the plot below, we can see that the largest number of rows are represented by the correct exercise type with classfication A. 
+```{r}
+histogram(training$classe)
+```
+
+One area that can cause issues with applying any of our models is if there are a significant number of NA values. To see if this may need to be address we want a count of the NAs, which is `r sum(is.na(training))`. This warrants investigation for additional preprocessing. There are `r length(training$classe)` rows in our training set. We then discover there are `r sum(colSums(is.na(training))>(length(training$classe)/2))' columns with over 50% NA. We'll create a new dataset of only the columns with over 50% NA for further investigation. 
+
+```{r}
+highNA <- training[ , which(colSums(is.na(training))>(length(training$classe)/2))]
+```
+
+From that separate data we can see that the the number of complete rows without NAs is `r sum(complete.cases(highNA))`, which accounts for only `r 406/length(highNA[ , 1])` of the rows, and that the mean number of NAs in the columns is `r mean(colSums(is.na(highNA))/length(highNA[ , 1]))`. To understand if all the rows have the same level on NAs we'll plot the percent of NAs per each column.
+
+```{r}
+barplot(colSums(is.na(highNA))/length(highNA[ , 1]))
+```
+
+Because of the consistent, extremely high number of NAs in the columns, applying any sort of standardizing to remove these NAs could easily prove misleading. Instead we will remove these columns from our modeling.
+
+## Creating the model and cross validation
+
+To effectively test our models we need to separate part of the training data so we can test against that data as we only run the final model once against the final test data.
+
+```{r}
+inTrain <- createDataPartition(y = training$classe, p = 0.75, list = FALSE)
+traintrain <- training[inTrain, ]
+traintest <- training[-inTrain, ]
+```
+
+Now we'll create a few model options and compare them. The first model we'll test is using the GLM method. 
+
+```{r Model, echo=TRUE, warning=FALSE, cache=TRUE, message=FALSE}
+colnumbers <- which(colnames(training) %in% colnames(highNA)) ## to get the NA columns to remove
+modfit <- train(traintrain$classe ~ ., data = traintrain[,-colnumbers], preProcess = "pca", method = "rf")
+```
+
+predict1 <- predict(modfit, traintest)
+
+## Estimating out of Sample Error
+
+To test our results we will 
+
+```{r}
+predict1 <- predict(modfit, traintest)
+confusionMatrix(traintest$classe, predict(modfit, traintest))
+```
+
+From the confusion matrix results we can see the expected accuracy for what we expect the accuracy to be as we go to the real test sample.
+
+We will then apply this model to the predict our 20 test cases. 
+
+```{r test_prediction, echo=TRUE, warning=FALSE, cache=TRUE, message=FALSE}
+results <- predict(modfit, test)
+results_matrix <- confusionMatrix(test$classe, predict(modfit, test))
+```
+
+From the results we can see our actual accuracy. 
