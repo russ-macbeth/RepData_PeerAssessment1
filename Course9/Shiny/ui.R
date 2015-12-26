@@ -1,0 +1,87 @@
+library(shiny)
+
+shinyUI(pageWithSidebar(
+        headerPanel("Example plot"),
+        sidebarPanel(
+                selectInput('mammal1', 'Select you Favorite Mammal', 
+                            c("African elephant", "African giant pouched rat", 
+                              "African striped mouse",  "Arctic fox", 
+                              "Arctic ground squirrel", "Asian elephant", 
+                              "Baboon", "Big brown bat", "Bottle-nosed dolphin", 
+                              "Brazilian tapir", "Caspian seal", "Cheetah", 
+                              "Chimpanzee", "Chinchilla", "Common porpoise", 
+                              "Cotton rat", "Cow", "Deer mouse", "Degu", 
+                              "Desert hedgehog", "Dog", "Domestic cat", "Donkey", 
+                              "Eastern american chipmunk", "Eastern american mole", 
+                              "European hedgehog", "Galago", "Genet", 
+                              "Giant armadillo", "Giraffe", "Goat", 
+                              "Golden hamster", "Golden-mantled ground squirrel", 
+                              "Gray hyrax", "Gray seal", 
+                              "Greater short-tailed shrew", "Grivet", 
+                              "Guinea pig", "Horse", "House mouse", "Human", 
+                              "Jaguar", "Laboratory rat", 
+                              "Lesser short-tailed shrew", "Lion", 
+                              "Little brown bat", "Long-nosed armadillo", 
+                              "Macaque", "Mole rat", "Mongolian gerbil", 
+                              "Mongoose lemur", "Mountain beaver", "Musk shrew", 
+                              "North American Opossum", "Northern fur seal", 
+                              "Northern grasshopper mouse", "Owl monkey", 
+                              "Patas monkey", "Phalanger", "Pig", "Pilot whale", 
+                              "Potoroo", "Potto", "Rabbit", "Red fox", 
+                              "Rock hyrax", "Roe deer", "Round-tailed muskrat", 
+                              "Sheep", "Short-nosed echidna", "Slow loris", 
+                              "Squirrel monkey", "Star-nosed mole", "Tenrec", 
+                              "Thick-tailed opposum", "Thirteen-lined ground squirrel", 
+                              "Three-toed sloth", "Tiger", "Tree hyrax", "Tree shrew", 
+                              "Vesper mouse", "Vole ", "Western american chipmunk")
+                            ),
+                selectInput('mammal2', 'Select you Second Favorite Mammal', 
+                            c("African elephant", "African giant pouched rat", 
+                              "African striped mouse",  "Arctic fox", 
+                              "Arctic ground squirrel", "Asian elephant", 
+                              "Baboon", "Big brown bat", "Bottle-nosed dolphin", 
+                              "Brazilian tapir", "Caspian seal", "Cheetah", 
+                              "Chimpanzee", "Chinchilla", "Common porpoise", 
+                              "Cotton rat", "Cow", "Deer mouse", "Degu", 
+                              "Desert hedgehog", "Dog", "Domestic cat", "Donkey", 
+                              "Eastern american chipmunk", "Eastern american mole", 
+                              "European hedgehog", "Galago", "Genet", 
+                              "Giant armadillo", "Giraffe", "Goat", 
+                              "Golden hamster", "Golden-mantled ground squirrel", 
+                              "Gray hyrax", "Gray seal", 
+                              "Greater short-tailed shrew", "Grivet", 
+                              "Guinea pig", "Horse", "House mouse", "Human", 
+                              "Jaguar", "Laboratory rat", 
+                              "Lesser short-tailed shrew", "Lion", 
+                              "Little brown bat", "Long-nosed armadillo", 
+                              "Macaque", "Mole rat", "Mongolian gerbil", 
+                              "Mongoose lemur", "Mountain beaver", "Musk shrew", 
+                              "North American Opossum", "Northern fur seal", 
+                              "Northern grasshopper mouse", "Owl monkey", 
+                              "Patas monkey", "Phalanger", "Pig", "Pilot whale", 
+                              "Potoroo", "Potto", "Rabbit", "Red fox", 
+                              "Rock hyrax", "Roe deer", "Round-tailed muskrat", 
+                              "Sheep", "Short-nosed echidna", "Slow loris", 
+                              "Squirrel monkey", "Star-nosed mole", "Tenrec", 
+                              "Thick-tailed opposum", "Thirteen-lined ground squirrel", 
+                              "Three-toed sloth", "Tiger", "Tree hyrax", "Tree shrew", 
+                              "Vesper mouse", "Vole ", "Western american chipmunk")
+                )
+        ),
+        mainPanel(
+                tabsetPanel(
+                        tabPanel("Plot",
+                                h3('Sleep Characteristics of your Selections'),
+                                verbatimTextOutput("mammal1"),
+                                verbatimTextOutput("mammal2"),
+                                verbatimTextOutput("difference"),
+                                h4('Your animals compared to all Mammals'),
+                                verbatimTextOutput("chartdiscription"),
+                                plotOutput('distribution')
+                        ),
+                        tabPanel("Documentation", verbatimTextOutput("documentation")
+                        )
+                )
+                
+        )
+))
